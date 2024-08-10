@@ -1,70 +1,70 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Button, SafeAreaView, StyleSheet } from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { extendedClient } from "@/mydbModule";
+import { NotionFile } from "@prisma/client/react-native";
+import DraggableNotionList from "@/components/DraggableNotionList";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+const USER_ID = 1;
 
 export default function HomeScreen() {
+  const user = extendedClient.user.useFindFirst({
+    where: {
+      id: USER_ID,
+    },
+  });
+
+  //find where id is something
+  const notion = extendedClient.notionFile.useFindFirst({
+    where: {
+      authorId: USER_ID,
+    },
+  });
+
+  //fetch all the data
+
+  const allNotions = extendedClient.notionFile.useFindMany();
+
+  const createUser = () => {
+    const newUser = { name: "Dilnawaz Khan", email: "dilnawaz@expo.dev" };
+    extendedClient.user.create({
+      data: newUser,
+    });
+    console.log("User created successfully");
+  };
+
+  const createNotion = () => {
+    const newNotion = {
+      authorId: 1,
+      title: "Test title",
+      content: "example content",
+      icon: "🥳",
+      description: "",
+      coverPhoto: "",
+      type: "default",
+    };
+
+    extendedClient.notionFile.create({
+      data: newNotion,
+    });
+    console.log("notion created successfully");
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ThemedView style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <DraggableNotionList />
+        {/* <Button title="Create a user" onPress={createUser} /> */}
+        {/* <Button title="Create a notion" onPress={createNotion} /> */}
+      </SafeAreaView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  container: {
+    flex: 1,
   },
 });
